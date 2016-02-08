@@ -1,3 +1,11 @@
+style = document.createElement "style"
+style.innerText = """
+  body {
+    margin: 0;
+  }
+"""
+document.head.appendChild style
+
 preload = ->
   console.log 'duder'
 
