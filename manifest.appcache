@@ -1,0 +1,12 @@
+CACHE MANIFEST
+# 1454900184510
+
+CACHE:
+index.html
+master.json.js
+https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.4/phaser.min.js
+
+NETWORK:
+https://*
+http://*
+*
