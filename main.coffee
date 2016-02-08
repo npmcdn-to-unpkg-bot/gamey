@@ -1,7 +1,5 @@
 # TODO: Figure out why this doesn't load in the iframe in the preview popup :(
 
-console.log 'heyy'
-
 preload = ->
   console.log 'duder'
 
@@ -25,3 +23,4 @@ create = ->
 global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
   preload: preload
   create: create
+  enableDebug: true
