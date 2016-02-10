@@ -178,31 +178,33 @@
       "mode": "100644",
       "type": "blob"
     },
+    "main.coffee": {
+      "path": "main.coffee",
+      "content": "style = document.createElement \"style\"\nstyle.innerText = \"\"\"\n  body {\n    margin: 0;\n  }\n\"\"\"\ndocument.head.appendChild style\n\npreload = ->\n  game.load.crossOrigin = \"Anonymous\"\n\n  game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)\n  game.load.image('background', \"https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA\")\n\ncreate = ->\n  game.stage.backgroundColor = '#182d3b'\n\n  background = game.add.tileSprite(0, 0, 800, 600, 'background')\n\n  button = game.add.button(game.world.centerX - 95, 400, 'button', (-> console.log 'heyy'), this, 2, 1, 0)\n\n  button.onInputOver.add ->\n    console.log 'over'\n  button.onInputOut.add ->\n    console.log 'out'\n  button.onInputUp.add ->\n    console.log 'up'\n\nglobal.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',\n  preload: preload\n  create: create\n  enableDebug: true\n",
+      "mode": "100644",
+      "type": "blob"
+    },
     "pixie.cson": {
       "path": "pixie.cson",
       "content": "remoteDependencies: [\n  \"https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.4/phaser.min.js\"\n]\n",
-      "mode": "100644"
-    },
-    "main.coffee": {
-      "path": "main.coffee",
-      "content": "preload = ->\n  # game.load.spritesheet('button', 'http://examples.phaser.io/assets/buttons/button_sprite_sheet.png', 193, 71)\n  game.load.image('background', \"https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA\")\n\ncreate = ->\n  console.log \"yolo!\"\n  game.stage.backgroundColor = '#182d3b'\n\n  background = game.add.tileSprite(0, 0, 800, 600, 'background')\n\n  # button = game.add.button(game.world.centerX - 95, 400, 'button', actionOnClick, this, 2, 1, 0)\n\n  # button.onInputOver.add(over, this)\n  # button.onInputOut.add(out, this)\n  # button.onInputUp.add(up, this)\n\ngame = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',\n  preload: preload\n  create: create\n",
-      "mode": "100644"
+      "mode": "100644",
+      "type": "blob"
     }
   },
   "distribution": {
+    "main": {
+      "path": "main",
+      "content": "(function() {\n  var create, preload, style;\n\n  style = document.createElement(\"style\");\n\n  style.innerText = \"body {\\n  margin: 0;\\n}\";\n\n  document.head.appendChild(style);\n\n  preload = function() {\n    game.load.crossOrigin = \"Anonymous\";\n    game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71);\n    return game.load.image('background', \"https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA\");\n  };\n\n  create = function() {\n    var background, button;\n    game.stage.backgroundColor = '#182d3b';\n    background = game.add.tileSprite(0, 0, 800, 600, 'background');\n    button = game.add.button(game.world.centerX - 95, 400, 'button', (function() {\n      return console.log('heyy');\n    }), this, 2, 1, 0);\n    button.onInputOver.add(function() {\n      return console.log('over');\n    });\n    button.onInputOut.add(function() {\n      return console.log('out');\n    });\n    return button.onInputUp.add(function() {\n      return console.log('up');\n    });\n  };\n\n  global.game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {\n    preload: preload,\n    create: create,\n    enableDebug: true\n  });\n\n}).call(this);\n",
+      "type": "blob"
+    },
     "pixie": {
       "path": "pixie",
       "content": "module.exports = {\"remoteDependencies\":[\"https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.4/phaser.min.js\"]};",
       "type": "blob"
-    },
-    "main": {
-      "path": "main",
-      "content": "(function() {\n  var create, game, preload;\n\n  preload = function() {\n    return game.load.image('background', \"https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA\");\n  };\n\n  create = function() {\n    var background;\n    console.log(\"yolo!\");\n    game.stage.backgroundColor = '#182d3b';\n    return background = game.add.tileSprite(0, 0, 800, 600, 'background');\n  };\n\n  game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {\n    preload: preload,\n    create: create\n  });\n\n}).call(this);\n",
-      "type": "blob"
     }
   },
   "progenitor": {
-    "url": "https://danielx.net/editor/v0.4.1/"
+    "url": "https://danielx.net/editor/"
   },
   "entryPoint": "main",
   "remoteDependencies": [
