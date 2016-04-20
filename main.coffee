@@ -35,8 +35,6 @@ click = do ->
       save: (data) ->
         console.log "Save"
         url = URL.createObjectURL(data.image)
-        
-        console.log url
 
         name = "yolo#{i}"
         game.load.image(name, url)
