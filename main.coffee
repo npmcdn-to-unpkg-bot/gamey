@@ -41,7 +41,12 @@ click = do ->
         game.load.onLoadComplete.addOnce ->
           x = Math.floor(game.width * Math.random())|0
           y = Math.floor(game.width * Math.random())|0
-          game.add.sprite x, y, name
+          sprite = game.add.sprite x, y, name
+
+          # Make sprite clickable
+          sprite.inputEnabled = true
+          sprite.events.onInputDown.add ->
+            console.log "clicky!"
 
         i += 1
         game.load.start()
