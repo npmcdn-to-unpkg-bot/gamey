@@ -23,13 +23,13 @@ preload = ->
   game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
 
 click = do ->
-  pixelEditorWindow = null
+  childWindow = null
+  i = 0
+
   return ->
     console.log "click"
 
-    i = 0
-
-    Embedder "https://danielx.net/pixel-editor/",
+    embedder = Embedder "https://danielx.net/pixel-editor/",
       childLoaded: ->
         console.log "Editor Loaded"
       save: (data) ->
@@ -47,9 +47,16 @@ click = do ->
           sprite.inputEnabled = true
           sprite.events.onInputDown.add ->
             console.log "clicky!"
+            # Use this texture to load into editor
+            img = sprite.texture.baseTexture.source
+
+            img2Blob(img).then (blob) ->
+              embedder.loadFile blob
 
         i += 1
         game.load.start()
+
+    childWindow = embedder.remoteTaregt()
 
 create = ->
   game.stage.backgroundColor = '#182d3b'
@@ -72,3 +79,13 @@ global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
   create: create
   enableDebug: true
 
+img2Blob = (img) ->
+  new Promise (resolve, reject) ->
+    canvas = img.ownerDocument.createElement "canvas"
+    canvas.width = img.width
+    canvas.height = img.height
+
+    context = canvas.getContext("2d")
+    context.drawImage(img, 0, 0)
+
+    canvas.toBlob resolve
