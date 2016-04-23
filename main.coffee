@@ -24,6 +24,7 @@ preload = ->
 
 click = do ->
   childWindow = null
+  embedder = null
   i = 0
 
   return ->
@@ -42,6 +43,11 @@ click = do ->
           x = Math.floor(game.width * Math.random())|0
           y = Math.floor(game.width * Math.random())|0
           sprite = game.add.sprite x, y, name
+
+          # Physics!
+          game.physics.arcade.enable sprite
+          sprite.body.collideWorldBounds = true
+          sprite.body.gravity.y = 500
 
           # Make sprite clickable
           sprite.inputEnabled = true
@@ -89,3 +95,15 @@ img2Blob = (img) ->
     context.drawImage(img, 0, 0)
 
     canvas.toBlob resolve
+
+# Want to save assets, game data, and game state
+Phaser.Game.prototype.save = ->
+  # TODO: Serialize all custom objects
+  # TODO: Persist spritesheets
+  # TODO: Persist level/world data
+  return {}
+
+Phaser.Game.prototype.restore = (data) ->
+  # TODO: Clear all custom objects
+  # TODO: Add all objects from the data
+  # TODO: Set up spritesheets
