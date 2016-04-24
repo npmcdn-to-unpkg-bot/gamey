@@ -27,6 +27,9 @@ click = do ->
   embedder = null
   i = 0
 
+  Phaser.Game.prototype.editTexture = (name, blob) ->
+    embedder.loadFile blob
+
   return ->
     console.log "click"
 
@@ -42,22 +45,11 @@ click = do ->
         game.load.onLoadComplete.addOnce ->
           x = Math.floor(game.width * Math.random())|0
           y = Math.floor(game.width * Math.random())|0
-          sprite = game.add.sprite x, y, name
 
-          # Physics!
-          game.physics.arcade.enable sprite
-          sprite.body.collideWorldBounds = true
-          sprite.body.gravity.y = 500
-
-          # Make sprite clickable
-          sprite.inputEnabled = true
-          sprite.events.onInputDown.add ->
-            console.log "clicky!"
-            # Use this texture to load into editor
-            img = sprite.texture.baseTexture.source
-
-            img2Blob(img).then (blob) ->
-              embedder.loadFile blob
+          addObject game,
+            name: name
+            x: x
+            y: y
 
         i += 1
         game.load.start()
@@ -95,6 +87,26 @@ img2Blob = (img) ->
     context.drawImage(img, 0, 0)
 
     canvas.toBlob resolve
+
+addObject = (game, data) ->
+  {x, y, name} = data
+
+  sprite = game.add.sprite x, y, name
+
+  # Physics!
+  game.physics.arcade.enable sprite
+  sprite.body.collideWorldBounds = true
+  sprite.body.gravity.y = 500
+
+  # Make sprite clickable
+  sprite.inputEnabled = true
+  sprite.events.onInputDown.add ->
+    console.log "clicky!"
+    # Use this texture to load into editor
+    img = sprite.texture.baseTexture.source
+
+    img2Blob(img).then (blob) ->
+      game.editTexture name, blob
 
 # Want to save assets, game data, and game state
 Phaser.Game.prototype.save = ->
