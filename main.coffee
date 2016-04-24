@@ -15,6 +15,7 @@ style.innerText = """
 document.head.appendChild style
 
 Embedder = require "embedder"
+customObjects = null
 
 preload = ->
   game.load.crossOrigin = "Anonymous"
@@ -46,7 +47,7 @@ click = do ->
           x = Math.floor(game.width * Math.random())|0
           y = Math.floor(game.width * Math.random())|0
 
-          addObject game,
+          addObject game, customObjects,
             name: name
             x: x
             y: y
@@ -72,6 +73,8 @@ create = ->
   button.onInputDown.add ->
     console.log 'down'
 
+  customObjects = game.add.group()
+
 global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
   preload: preload
   create: create
@@ -88,10 +91,10 @@ img2Blob = (img) ->
 
     canvas.toBlob resolve
 
-addObject = (game, data) ->
+addObject = (game, group, data) ->
   {x, y, name} = data
 
-  sprite = game.add.sprite x, y, name
+  sprite = group.create x, y, name
 
   # Physics!
   game.physics.arcade.enable sprite
@@ -108,8 +111,6 @@ addObject = (game, data) ->
     img2Blob(img).then (blob) ->
       game.editTexture name, blob
 
-  sprite.custom = true
-
   return sprite
 
 # Want to save assets, game data, and game state
@@ -117,14 +118,16 @@ Phaser.Game.prototype.save = ->
   # TODO: Serialize all custom objects
   # TODO: Persist spritesheets
   # TODO: Persist level/world data
-  objects: game.world.children.filter((child) ->
-      child.custom
-    ).map (child) ->
-      name: child.key
-      x: child.x
-      y: child.y
+  objects: customObjects.children.map (child) ->
+    name: child.key
+    x: child.x
+    y: child.y
 
 Phaser.Game.prototype.restore = (data) ->
-  # TODO: Clear all custom objects
-  # TODO: Add all objects from the data
+  # Clear all custom objects
+  customObjects.removeAll()
+  # Add all objects from the data
+  data.objects.forEach (objectData) ->
+    addObject game, customObjects, objectData
+
   # TODO: Set up spritesheets
