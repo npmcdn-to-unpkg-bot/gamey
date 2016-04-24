@@ -26,7 +26,6 @@ preload = ->
 click = do ->
   childWindow = null
   embedder = null
-  i = 0
 
   Phaser.Game.prototype.editTexture = (name, blob) ->
     embedder.loadFile blob
@@ -41,18 +40,12 @@ click = do ->
         console.log "Save"
         url = URL.createObjectURL(data.image)
 
-        name = "yolo#{i}"
+        name = "yolo"
         game.load.image(name, url)
         game.load.onLoadComplete.addOnce ->
-          x = Math.floor(game.width * Math.random())|0
-          y = Math.floor(game.width * Math.random())|0
+          customObjects.children.map (obj) ->
+            obj.loadTexture(name)
 
-          addObject game, customObjects,
-            name: name
-            x: x
-            y: y
-
-        i += 1
         game.load.start()
 
     childWindow = embedder.remoteTaregt()
@@ -64,16 +57,20 @@ create = ->
 
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
-  button.onInputOver.add ->
-    console.log 'over'
-  button.onInputOut.add ->
-    console.log 'out'
-  button.onInputUp.add ->
-    console.log 'up'
-  button.onInputDown.add ->
-    console.log 'down'
-
   customObjects = game.add.group()
+
+  # Hotkeys
+  game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+  .onDown.add ->
+    name = "yolo"
+
+    x = Math.floor(game.width * Math.random())|0
+    y = Math.floor(game.width * Math.random())|0
+
+    addObject game, customObjects,
+      name: name
+      x: x
+      y: y
 
 global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
   preload: preload
@@ -95,6 +92,8 @@ addObject = (game, group, data) ->
   {x, y, name} = data
 
   sprite = group.create x, y, name
+
+  # TODO: Custom classes/mixins
 
   # Physics!
   game.physics.arcade.enable sprite
