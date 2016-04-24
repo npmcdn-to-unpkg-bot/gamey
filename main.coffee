@@ -108,12 +108,21 @@ addObject = (game, data) ->
     img2Blob(img).then (blob) ->
       game.editTexture name, blob
 
+  sprite.custom = true
+
+  return sprite
+
 # Want to save assets, game data, and game state
 Phaser.Game.prototype.save = ->
   # TODO: Serialize all custom objects
   # TODO: Persist spritesheets
   # TODO: Persist level/world data
-  return {}
+  objects: game.world.children.filter((child) ->
+      child.custom
+    ).map (child) ->
+      name: child.key
+      x: child.x
+      y: child.y
 
 Phaser.Game.prototype.restore = (data) ->
   # TODO: Clear all custom objects
