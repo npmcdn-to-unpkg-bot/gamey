@@ -16,6 +16,7 @@ document.head.appendChild style
 
 Embedder = require "embedder"
 customObjects = null
+debugText = null
 
 preload = ->
   game.load.crossOrigin = "Anonymous"
@@ -58,6 +59,15 @@ create = ->
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
   customObjects = game.add.group()
+
+  # Text!
+  debugText = game.add.text 0, 0, "",
+    fill: "#080"
+
+  # Game Input
+  game.input.onDown.add ({x, y}) ->
+    console.log "gdown"
+    debugText.text = "X: #{x}, Y: #{y}"
 
   # Hotkeys
   game.input.keyboard.addKey(Phaser.Keyboard.ONE)

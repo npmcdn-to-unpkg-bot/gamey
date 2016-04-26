@@ -1,5 +1,5 @@
 remoteDependencies: [
-  "https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.6/phaser.min.js"
+  "https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.7/phaser.min.js"
 ]
 dependencies:
   embedder: "distri/embedder:v0.1.1"
