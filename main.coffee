@@ -19,6 +19,8 @@ customObjects = null
 debugText = null
 
 preload = ->
+  game.time.advancedTiming = true
+
   game.load.crossOrigin = "Anonymous"
 
   game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
@@ -66,8 +68,7 @@ create = ->
 
   # Game Input
   game.input.onDown.add ({x, y}) ->
-    console.log "gdown"
-    debugText.text = "X: #{x}, Y: #{y}"
+    console.log "get down"
 
   # Hotkeys
   game.input.keyboard.addKey(Phaser.Keyboard.ONE)
@@ -82,10 +83,14 @@ create = ->
       x: x
       y: y
 
+update = ->
+  debugText.text = game.time.fps
+
 global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
   preload: preload
   create: create
   enableDebug: true
+  update: update
 
 img2Blob = (img) ->
   new Promise (resolve, reject) ->
