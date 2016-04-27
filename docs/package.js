@@ -217,7 +217,7 @@
     },
     "samples.coffee": {
       "path": "samples.coffee",
-      "content": "# Button input events\n(button) ->\n  button.onInputOver.add ->\n    console.log 'over'\n  button.onInputOut.add ->\n    console.log 'out'\n  button.onInputUp.add ->\n    console.log 'up'\n  button.onInputDown.add ->\n    console.log 'down'\n",
+      "content": "\n# Button input events\n(button) ->\n  button.onInputOver.add ->\n    console.log 'over'\n  button.onInputOut.add ->\n    console.log 'out'\n  button.onInputUp.add ->\n    console.log 'up'\n  button.onInputDown.add ->\n    console.log 'down'\n\n# Displaying FPS\n# http://phaser.io/docs/2.4.6/Phaser.Time.html\n->\n  # setup\n  game.time.advancedTiming = true\n  \n  # update\n  someText.text = game.time.fps\n",
       "mode": "100644",
       "type": "blob"
     }
@@ -235,7 +235,7 @@
     },
     "samples": {
       "path": "samples",
-      "content": "(function() {\n  (function(button) {\n    button.onInputOver.add(function() {\n      return console.log('over');\n    });\n    button.onInputOut.add(function() {\n      return console.log('out');\n    });\n    button.onInputUp.add(function() {\n      return console.log('up');\n    });\n    return button.onInputDown.add(function() {\n      return console.log('down');\n    });\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  (function(button) {\n    button.onInputOver.add(function() {\n      return console.log('over');\n    });\n    button.onInputOut.add(function() {\n      return console.log('out');\n    });\n    button.onInputUp.add(function() {\n      return console.log('up');\n    });\n    return button.onInputDown.add(function() {\n      return console.log('down');\n    });\n  });\n\n  (function() {\n    game.time.advancedTiming = true;\n    return someText.text = game.time.fps;\n  });\n\n}).call(this);\n",
       "type": "blob"
     }
   },
