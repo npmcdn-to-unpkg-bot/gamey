@@ -199,7 +199,7 @@
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nLoad and update a game object's image in pixel editor\n\nSave and restore game state\n\nLive edit tilemap\n\nLive edit game object properties\n\nSave / Restore local storage\n\nSave to S3 / external\n\nDone\n====\n\nDraw an image in pixel editor and make it into a sprite\n",
+      "content": "TODO\n====\n\nLive edit tilemap\n\nLive edit game object properties\n\nSave / Restore local storage\n\nSave to S3 / external\n\nSound\n\nScreen Shake/Flash\n\nDone\n====\n\nDraw an image in pixel editor and make it into a sprite\n\nLoad and update a game object's image in pixel editor\n\nSave and restore game state\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -217,7 +217,7 @@
     },
     "samples.coffee": {
       "path": "samples.coffee",
-      "content": "\n# Button input events\n(button) ->\n  button.onInputOver.add ->\n    console.log 'over'\n  button.onInputOut.add ->\n    console.log 'out'\n  button.onInputUp.add ->\n    console.log 'up'\n  button.onInputDown.add ->\n    console.log 'down'\n\n# Displaying FPS\n# http://phaser.io/docs/2.4.6/Phaser.Time.html\n->\n  # setup\n  game.time.advancedTiming = true\n  \n  # update\n  someText.text = game.time.fps\n",
+      "content": "\n# Button input events\n(button) ->\n  button.onInputOver.add ->\n    console.log 'over'\n  button.onInputOut.add ->\n    console.log 'out'\n  button.onInputUp.add ->\n    console.log 'up'\n  button.onInputDown.add ->\n    console.log 'down'\n\n# Displaying FPS\n# http://phaser.io/docs/2.4.6/Phaser.Time.html\n->\n  # setup\n  game.time.advancedTiming = true\n\n  # update\n  someText.text = game.time.fps\n",
       "mode": "100644",
       "type": "blob"
     }
