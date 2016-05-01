@@ -4,16 +4,33 @@ canvasToBlob = (canvas) ->
       resolve blob
 
 module.exports =
-  img2Blob: (img) ->
+  img2Blob: (img, x=0, y=0, width=img.width, height=img.height) ->
     new Promise (resolve, reject) ->
       canvas = img.ownerDocument.createElement "canvas"
-      canvas.width = img.width
-      canvas.height = img.height
-  
+      canvas.width = width
+      canvas.height = height
+
       context = canvas.getContext("2d")
-      context.drawImage(img, 0, 0)
-  
+      context.drawImage(img, -x, -y)
+
       canvas.toBlob resolve
+
+  blob2img: (blob) ->
+    url = URL.createObjectURL(blob)
+
+    cleanup = ->
+      URL.revokeObjectURL(url)
+
+    new Promise (resolve, reject) ->
+      img = new Image
+      img.onload = ->
+        cleanup()
+        resolve img
+      img.onerror = (e) ->
+        cleanup()
+        reject e
+
+      img.src = url
 
   defaultSpritesheetBlob: ->
     size = 512
@@ -29,3 +46,10 @@ module.exports =
     context.fill()
 
     canvasToBlob(canvas)
+
+  composeSprite: (base, sprite, frame) ->
+    blob2img(sprite)
+    .then (img) ->
+
+      context.clearRect(x, y, width, height)
+      context.drawImage(img, x, y, width, height)

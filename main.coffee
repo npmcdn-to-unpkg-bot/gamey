@@ -1,19 +1,28 @@
 require "./setup"
 
-{defaultSpritesheetBlob, img2Blob} = require "./util"
+{blob2img, defaultSpritesheetBlob, img2Blob} = require "./util"
+
+Spritesheet = require "./spritesheet"
 
 db = require("./db")()
 
 Embedder = require "embedder"
 customObjects = null
 debugText = null
+spritesheet = null
 
 click = do ->
   childWindow = null
   embedder = null
+  activeFrame = 0
 
-  Phaser.Game.prototype.editTexture = (name, blob) ->
-    embedder.loadFile blob
+  Phaser.Game.prototype.editTexture = (name, frame) ->
+    # TODO: This should be passed through to the editor rather than stored here
+    # to avoid race conditions
+    activeFrame = frame
+
+    spritesheet.getBlob(frame).then (blob) ->
+      embedder.loadFile blob
 
   return ->
     console.log "click"
@@ -22,19 +31,19 @@ click = do ->
       childLoaded: ->
         console.log "Editor Loaded"
       save: (data) ->
-        spriteWidth = 32
-        spriteHeight = 32
-
         console.log "Save"
-        url = URL.createObjectURL(data.image)
 
-        name = "spritesheet"
-        game.load.spritesheet(name, url, spriteWidth, spriteHeight)
-        game.load.onLoadComplete.addOnce ->
+        blob2img(data.image)
+        .then (img) ->
+          spritesheet.compose(img, activeFrame)
+
+          # Need to update cache?
+          game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
+
           customObjects.children.map (obj) ->
-            obj.loadTexture(name, obj.frame)
+            obj.loadTexture("spritesheet", obj.frame)
 
-        game.load.start()
+          return
 
     childWindow = embedder.remoteTaregt()
 
@@ -56,17 +65,19 @@ create = ->
     console.log "get down"
 
   # Hotkeys
-  game.input.keyboard.addKey(Phaser.Keyboard.ONE)
-  .onDown.add ->
-    name = "spritesheet"
+  ["ZERO", "ONE", "TWO", "THREE"].forEach (key, i) ->
+    game.input.keyboard.addKey(Phaser.Keyboard[key])
+    .onDown.add ->
+      name = "spritesheet"
 
-    x = Math.floor(game.width * Math.random())|0
-    y = Math.floor(game.width * Math.random())|0
+      x = Math.floor(game.width * Math.random())|0
+      y = 100
 
-    addObject game, customObjects,
-      name: name
-      x: x
-      y: y
+      addObject game, customObjects,
+        name: name
+        x: x
+        y: y
+        frame: i
 
 update = ->
   debugText.text = game.time.fps
@@ -78,22 +89,35 @@ db.objects.get "spritesheet"
   else
     defaultSpritesheetBlob()
     .then (blob) ->
-      db.objects.put
+      data =
         id: "spritesheet"
         blob: blob
         spriteWidth: 32
         spriteHeight: 32
+        width: 512
+        height: 512
 
+      db.objects.put data
+      .then ->
+        data
+
+.then ({blob, width, height, spriteWidth, spriteHeight}) ->
+  console.log blob
+
+  blob2img(blob)
+  .then (img) ->
+    spritesheet = Spritesheet spriteWidth, spriteHeight, width, height, img
 .then (spritesheet) ->
-  url = URL.createObjectURL(spritesheet.blob)
-  {spriteWidth, spriteHeight} = spritesheet
+  console.log spritesheet
+  canvas = spritesheet.canvas()
 
   preload = ->
     game.time.advancedTiming = true
 
     game.load.crossOrigin = "Anonymous"
 
-    game.load.spritesheet('spritesheet', url, spriteWidth, spriteHeight)
+    # NOTE: You can pass a canvas as the data arg here, cool undocumented feature!
+    game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
     game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
     game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
 
@@ -120,12 +144,7 @@ addObject = (game, group, data) ->
   # Make sprite clickable
   sprite.inputEnabled = true
   sprite.events.onInputDown.add ->
-    console.log "clicky!"
-    # Use this texture to load into editor
-    img = sprite.texture.baseTexture.source
-
-    img2Blob(img).then (blob) ->
-      game.editTexture name, blob
+    game.editTexture name, sprite.frame
 
   return sprite
 
