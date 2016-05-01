@@ -1,30 +1,12 @@
-style = document.createElement "style"
-style.innerText = """
-  html {
-    background-color: #112;
-    height: 100%;
-  }
-  body {
-    margin: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-"""
-document.head.appendChild style
+require "./setup"
+
+{defaultSpritesheetBlob, img2Blob} = require "./util"
+
+db = require("./db")()
 
 Embedder = require "embedder"
 customObjects = null
 debugText = null
-
-preload = ->
-  game.time.advancedTiming = true
-
-  game.load.crossOrigin = "Anonymous"
-
-  game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
-  game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
 
 click = do ->
   childWindow = null
@@ -40,14 +22,17 @@ click = do ->
       childLoaded: ->
         console.log "Editor Loaded"
       save: (data) ->
+        spriteWidth = 32
+        spriteHeight = 32
+
         console.log "Save"
         url = URL.createObjectURL(data.image)
 
-        name = "yolo"
-        game.load.image(name, url)
+        name = "spritesheet"
+        game.load.spritesheet(name, url, spriteWidth, spriteHeight)
         game.load.onLoadComplete.addOnce ->
           customObjects.children.map (obj) ->
-            obj.loadTexture(name)
+            obj.loadTexture(name, obj.frame)
 
         game.load.start()
 
@@ -73,7 +58,7 @@ create = ->
   # Hotkeys
   game.input.keyboard.addKey(Phaser.Keyboard.ONE)
   .onDown.add ->
-    name = "yolo"
+    name = "spritesheet"
 
     x = Math.floor(game.width * Math.random())|0
     y = Math.floor(game.width * Math.random())|0
@@ -86,27 +71,44 @@ create = ->
 update = ->
   debugText.text = game.time.fps
 
-global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
-  preload: preload
-  create: create
-  enableDebug: true
-  update: update
+db.objects.get "spritesheet"
+.then (spritesheet) ->
+  if spritesheet
+    return spritesheet
+  else
+    defaultSpritesheetBlob()
+    .then (blob) ->
+      db.objects.put
+        id: "spritesheet"
+        blob: blob
+        spriteWidth: 32
+        spriteHeight: 32
 
-img2Blob = (img) ->
-  new Promise (resolve, reject) ->
-    canvas = img.ownerDocument.createElement "canvas"
-    canvas.width = img.width
-    canvas.height = img.height
+.then (spritesheet) ->
+  url = URL.createObjectURL(spritesheet.blob)
+  {spriteWidth, spriteHeight} = spritesheet
 
-    context = canvas.getContext("2d")
-    context.drawImage(img, 0, 0)
+  preload = ->
+    game.time.advancedTiming = true
 
-    canvas.toBlob resolve
+    game.load.crossOrigin = "Anonymous"
+
+    game.load.spritesheet('spritesheet', url, spriteWidth, spriteHeight)
+    game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
+    game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
+
+  global.game = game = new Phaser.Game 800, 600, Phaser.AUTO, document.body,
+    create: create
+    enableDebug: true
+    preload: preload
+    update: update
 
 addObject = (game, group, data) ->
-  {x, y, name} = data
+  {x, y, name, frame} = data
 
   sprite = group.create x, y, name
+
+  sprite.frame = frame ? 0
 
   # TODO: Custom classes/mixins
 
@@ -136,6 +138,7 @@ Phaser.Game.prototype.save = ->
     name: child.key
     x: child.x
     y: child.y
+    frame: child.frame
 
 Phaser.Game.prototype.restore = (data) ->
   # Clear all custom objects

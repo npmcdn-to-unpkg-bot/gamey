@@ -1,24 +1,7 @@
-# Exploring the magic of IndexedDB
-
+# Super simple object DB
 module.exports = ->
-  version = 1
-  name = "test"
+  db = new Dexie("objects")
+  db.version(1).stores
+    objects: "id"
 
-  request = window.indexedDB.open(name, version)
-
-  request.onupgradeneeded = (event) ->
-    db = event.target.result
-
-    # Do table initialization
-    objectStore = db.createObjectStore("toDoList", { keyPath: "taskTitle" })
-
-  p = new Promise (resolve, reject) ->
-    request.onsuccess = resolve
-    request.onerror = reject
-  .then ->
-    request.result
-
-  p.then (result) ->
-    console.log result
-
-module.exports()
+  return db

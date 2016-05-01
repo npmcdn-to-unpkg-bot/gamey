@@ -4,4 +4,4 @@ remoteDependencies: [
 ]
 dependencies:
   embedder: "distri/embedder:v0.1.1"
-entryPoint: "dexie_test"
+#entryPoint: "dexie_test"
