@@ -29,6 +29,7 @@ module.exports = (spriteWidth=32, spriteHeight=32, width=512, height=512, baseIm
       x = (frame % 16) * spriteWidth
       y = ((frame / 16)|0) * spriteHeight
 
+      context.clearRect(x, y, spriteWidth, spriteHeight)
       context.drawImage(img, x, y, spriteWidth, spriteHeight)
 
     getData: ->

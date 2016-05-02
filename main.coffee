@@ -79,6 +79,10 @@ create = ->
         y: y
         frame: i
 
+  game.input.keyboard.addKey(Phaser.Keyboard.S)
+  .onDown.add ->
+    writeSpritesheet()
+
 update = ->
   debugText.text = game.time.fps
 
@@ -102,8 +106,6 @@ db.objects.get "spritesheet"
         data
 
 .then ({blob, width, height, spriteWidth, spriteHeight}) ->
-  console.log blob
-
   blob2img(blob)
   .then (img) ->
     spritesheet = Spritesheet spriteWidth, spriteHeight, width, height, img
@@ -167,3 +169,9 @@ Phaser.Game.prototype.restore = (data) ->
     addObject game, customObjects, objectData
 
   # TODO: Set up spritesheets
+
+writeSpritesheet = ->
+  spritesheet.getData().then (data) ->
+    data.id = "spritesheet"
+
+    db.objects.put data
