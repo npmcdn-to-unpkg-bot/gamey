@@ -1,37 +1,28 @@
-style = document.createElement "style"
-style.innerText = """
-  html {
-    background-color: #112;
-    height: 100%;
-  }
-  body {
-    margin: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-"""
-document.head.appendChild style
+require "./setup"
+
+{blob2img, defaultSpritesheetBlob, img2Blob} = require "./util"
+
+Spritesheet = require "./spritesheet"
+
+db = require("./db")()
 
 Embedder = require "embedder"
 customObjects = null
 debugText = null
-
-preload = ->
-  game.time.advancedTiming = true
-
-  game.load.crossOrigin = "Anonymous"
-
-  game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
-  game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
+spritesheet = null
 
 click = do ->
   childWindow = null
   embedder = null
+  activeFrame = 0
 
-  Phaser.Game.prototype.editTexture = (name, blob) ->
-    embedder.loadFile blob
+  Phaser.Game.prototype.editTexture = (name, frame) ->
+    # TODO: This should be passed through to the editor rather than stored here
+    # to avoid race conditions
+    activeFrame = frame
+
+    spritesheet.getBlob(frame).then (blob) ->
+      embedder.loadFile blob
 
   return ->
     console.log "click"
@@ -41,15 +32,18 @@ click = do ->
         console.log "Editor Loaded"
       save: (data) ->
         console.log "Save"
-        url = URL.createObjectURL(data.image)
 
-        name = "yolo"
-        game.load.image(name, url)
-        game.load.onLoadComplete.addOnce ->
+        blob2img(data.image)
+        .then (img) ->
+          spritesheet.compose(img, activeFrame)
+
+          # Need to update cache?
+          game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
+
           customObjects.children.map (obj) ->
-            obj.loadTexture(name)
+            obj.loadTexture("spritesheet", obj.frame)
 
-        game.load.start()
+          return
 
     childWindow = embedder.remoteTaregt()
 
@@ -71,42 +65,76 @@ create = ->
     console.log "get down"
 
   # Hotkeys
-  game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+  ["ZERO", "ONE", "TWO", "THREE"].forEach (key, i) ->
+    game.input.keyboard.addKey(Phaser.Keyboard[key])
+    .onDown.add ->
+      name = "spritesheet"
+
+      x = Math.floor(game.width * Math.random())|0
+      y = 100
+
+      addObject game, customObjects,
+        name: name
+        x: x
+        y: y
+        frame: i
+
+  game.input.keyboard.addKey(Phaser.Keyboard.S)
   .onDown.add ->
-    name = "yolo"
-
-    x = Math.floor(game.width * Math.random())|0
-    y = Math.floor(game.width * Math.random())|0
-
-    addObject game, customObjects,
-      name: name
-      x: x
-      y: y
+    writeSpritesheet()
 
 update = ->
   debugText.text = game.time.fps
 
-global.game = new Phaser.Game 800, 600, Phaser.AUTO, 'phaser-example',
-  preload: preload
-  create: create
-  enableDebug: true
-  update: update
+db.objects.get "spritesheet"
+.then (spritesheet) ->
+  if spritesheet
+    return spritesheet
+  else
+    defaultSpritesheetBlob()
+    .then (blob) ->
+      data =
+        id: "spritesheet"
+        blob: blob
+        spriteWidth: 32
+        spriteHeight: 32
+        width: 512
+        height: 512
 
-img2Blob = (img) ->
-  new Promise (resolve, reject) ->
-    canvas = img.ownerDocument.createElement "canvas"
-    canvas.width = img.width
-    canvas.height = img.height
+      db.objects.put data
+      .then ->
+        data
 
-    context = canvas.getContext("2d")
-    context.drawImage(img, 0, 0)
+.then ({blob, width, height, spriteWidth, spriteHeight}) ->
+  blob2img(blob)
+  .then (img) ->
+    spritesheet = Spritesheet spriteWidth, spriteHeight, width, height, img
+.then (spritesheet) ->
+  console.log spritesheet
+  canvas = spritesheet.canvas()
 
-    canvas.toBlob resolve
+  preload = ->
+    game.time.advancedTiming = true
+
+    game.load.crossOrigin = "Anonymous"
+
+    # NOTE: You can pass a canvas as the data arg here, cool undocumented feature!
+    game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
+    game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
+    game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
+
+  global.game = game = new Phaser.Game 800, 600, Phaser.AUTO, document.body,
+    create: create
+    enableDebug: true
+    preload: preload
+    update: update
 
 addObject = (game, group, data) ->
-  {x, y, name} = data
+  {x, y, name, frame} = data
 
   sprite = group.create x, y, name
+
+  sprite.frame = frame ? 0
 
   # TODO: Custom classes/mixins
 
@@ -118,12 +146,7 @@ addObject = (game, group, data) ->
   # Make sprite clickable
   sprite.inputEnabled = true
   sprite.events.onInputDown.add ->
-    console.log "clicky!"
-    # Use this texture to load into editor
-    img = sprite.texture.baseTexture.source
-
-    img2Blob(img).then (blob) ->
-      game.editTexture name, blob
+    game.editTexture name, sprite.frame
 
   return sprite
 
@@ -136,6 +159,7 @@ Phaser.Game.prototype.save = ->
     name: child.key
     x: child.x
     y: child.y
+    frame: child.frame
 
 Phaser.Game.prototype.restore = (data) ->
   # Clear all custom objects
@@ -145,3 +169,9 @@ Phaser.Game.prototype.restore = (data) ->
     addObject game, customObjects, objectData
 
   # TODO: Set up spritesheets
+
+writeSpritesheet = ->
+  spritesheet.getData().then (data) ->
+    data.id = "spritesheet"
+
+    db.objects.put data

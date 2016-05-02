@@ -15,6 +15,6 @@
 ->
   # setup
   game.time.advancedTiming = true
-
+  
   # update
   someText.text = game.time.fps
