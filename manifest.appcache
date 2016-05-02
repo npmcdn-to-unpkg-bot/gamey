@@ -1,10 +1,11 @@
 CACHE MANIFEST
-# 1461896050726
+# 1462160280970
 
 CACHE:
 index.html
 master.json
 https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.7/phaser.min.js
+https://npmcdn.com/dexie@1.3.6/dist/dexie.min.js
 
 NETWORK:
 https://*
