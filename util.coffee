@@ -46,10 +46,3 @@ module.exports =
     context.fill()
 
     canvasToBlob(canvas)
-
-  composeSprite: (base, sprite, frame) ->
-    blob2img(sprite)
-    .then (img) ->
-
-      context.clearRect(x, y, width, height)
-      context.drawImage(img, x, y, width, height)
