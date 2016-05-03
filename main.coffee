@@ -70,6 +70,11 @@ create = ->
 
   customObjects = game.add.group()
 
+  db.objects.get "objects"
+  .then (data) ->
+    if data
+      game.restore data
+
   # Text!
   debugText = game.add.text 0, 0, "",
     fill: "#080"
@@ -96,6 +101,7 @@ create = ->
   game.input.keyboard.addKey(Phaser.Keyboard.S)
   .onDown.add ->
     writeSpritesheet()
+    writeGameObjects()
 
 update = ->
   debugText.text = game.time.fps
@@ -195,3 +201,9 @@ writeSpritesheet = ->
     data.id = "spritesheet"
 
     db.objects.put data
+
+writeGameObjects = ->
+  data = game.save()
+  data.id = "objects"
+
+  db.objects.put data
