@@ -11,6 +11,9 @@ customObjects = null
 debugText = null
 spritesheet = null
 
+cursors = null
+player = null
+
 click = do ->
   childWindow = null
   embedder = null
@@ -54,6 +57,17 @@ create = ->
 
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
+  # Controls
+  cursors = game.input.keyboard.createCursorKeys()
+
+  # Physics
+  game.physics.arcade.gravity.y = 500
+
+  # Player
+  player = game.add.sprite(16, 32, 'dude')
+  game.physics.enable(player, Phaser.Physics.ARCADE)
+  player.body.collideWorldBounds = true
+
   customObjects = game.add.group()
 
   # Text!
@@ -85,6 +99,12 @@ create = ->
 
 update = ->
   debugText.text = game.time.fps
+  
+  if (cursors.left.isDown)
+    player.body.velocity.x = -150
+
+  if (cursors.right.isDown)
+    player.body.velocity.x = 150
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
@@ -141,7 +161,7 @@ addObject = (game, group, data) ->
   # Physics!
   game.physics.arcade.enable sprite
   sprite.body.collideWorldBounds = true
-  sprite.body.gravity.y = 500
+  # sprite.body.gravity.y = 500
 
   # Make sprite clickable
   sprite.inputEnabled = true
