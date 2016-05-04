@@ -105,12 +105,17 @@ create = ->
 
 update = ->
   debugText.text = game.time.fps
-  
+
   if (cursors.left.isDown)
     player.body.velocity.x = -150
 
   if (cursors.right.isDown)
     player.body.velocity.x = 150
+
+  # Physics, Collision!
+  game.physics.arcade.collide(player, customObjects, collisionHandler, processHandler, this)
+
+  game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
@@ -167,7 +172,6 @@ addObject = (game, group, data) ->
   # Physics!
   game.physics.arcade.enable sprite
   sprite.body.collideWorldBounds = true
-  # sprite.body.gravity.y = 500
 
   # Make sprite clickable
   sprite.inputEnabled = true
@@ -195,6 +199,11 @@ Phaser.Game.prototype.restore = (data) ->
     addObject game, customObjects, objectData
 
   # TODO: Set up spritesheets
+
+collisionHandler = (player, dealy) ->
+
+processHandler = ->
+  true
 
 writeSpritesheet = ->
   spritesheet.getData().then (data) ->
