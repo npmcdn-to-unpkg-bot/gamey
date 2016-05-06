@@ -175,16 +175,19 @@ addObject = (game, group, data) ->
 
   # Make sprite clickable
   sprite.inputEnabled = true
-  sprite.events.onInputDown.add ->
-    game.editTexture name, sprite.frame
+  sprite.events.onInputDown.add (sprite, pointer) ->
+    if pointer.button is Phaser.Mouse.RIGHT_BUTTON
+      sprite.destroy()
+    else
+      game.editTexture name, sprite.frame
 
   return sprite
 
 # Want to save assets, game data, and game state
 Phaser.Game.prototype.save = ->
-  # TODO: Serialize all custom objects
-  # TODO: Persist spritesheets
   # TODO: Persist level/world data
+
+  # Serialize custom objects
   objects: customObjects.children.map (child) ->
     name: child.key
     x: child.x
@@ -197,8 +200,6 @@ Phaser.Game.prototype.restore = (data) ->
   # Add all objects from the data
   data.objects.forEach (objectData) ->
     addObject game, customObjects, objectData
-
-  # TODO: Set up spritesheets
 
 collisionHandler = (player, dealy) ->
 

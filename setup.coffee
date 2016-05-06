@@ -13,3 +13,8 @@ style.innerText = """
   }
 """
 document.head.appendChild style
+
+
+document.body.addEventListener 'contextmenu', (e) ->
+  e.preventDefault()
+  return
