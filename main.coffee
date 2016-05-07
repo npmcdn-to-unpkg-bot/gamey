@@ -89,9 +89,11 @@ create = ->
 
   # Blank Tilemap
   # TODO: Save/Load from storage
-  map = game.add.tilemap()
-  layer1 = map.create('level1', 40, 30, 32, 32)
+  map = @map = game.add.tilemap()
+  map.setCollision(0)
+  layer1 = @layer1 = map.create('layer1', 40, 30, 32, 32)
   layer1.resizeWorld()
+  currentTileIndex = 0
 
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
@@ -121,7 +123,8 @@ create = ->
     fill: "#080"
 
   # Game Input
-  game.input.onDown.add ({x, y}) ->
+  game.input.onDown.add ({worldX:x, worldY:y}) ->
+    map.putTile(currentTileIndex, layer1.getTileX(x), layer1.getTileY(y), layer1)
     console.log "get down"
 
   # Hotkeys
@@ -144,6 +147,10 @@ create = ->
     writeSpritesheet()
     writeGameObjects()
 
+  game.input.keyboard.addKey(Phaser.Keyboard.A)
+  .onDown.add ->
+    serializeTilemap(map)
+
 update = ->
   debugText.text = game.time.fps
 
@@ -151,6 +158,8 @@ update = ->
   game.physics.arcade.collide(player, customObjects, collisionHandler, processHandler, this)
 
   game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
+  
+  game.physics.arcade.collide(player, @layer1)
 
   playerControls(cursors, player)
 
@@ -254,3 +263,23 @@ writeGameObjects = ->
   data.id = "objects"
 
   db.objects.put data
+
+serializeLayer = (layer) ->
+  {data, name} = layer
+
+  name: name
+  data: data.map (row) ->
+    row.map (tile) ->
+      tile.index
+
+serializeTilemap = (map) ->
+  {width, height, tileWidth, tileHeight, layers} = map
+
+  data =
+    width: width
+    height: height
+    tileWidth: tileWidth
+    tileHeight: tileHeight
+    layers: layers.map serializeLayer
+
+  console.log data
