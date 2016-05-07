@@ -14,6 +14,38 @@ spritesheet = null
 cursors = null
 player = null
 
+debugData = {}
+addDebug = (data) ->
+  Object.keys(data).forEach (key) ->
+    debugData[key] = data[key]
+
+canJump = (player) ->
+  # Get a foot platform to test if we are standing on another sprite
+  playerFoot = player.getBounds()
+  playerFoot.top = playerFoot.y + playerFoot.height
+  playerFoot.height = 1
+
+  player.body.blocked.down or 
+  customObjects.children.map (sprite) ->
+    sprite.getBounds()
+  .reduce (collides, bounds) ->
+    collides or Phaser.Rectangle.intersects(playerFoot, bounds)
+  , false
+
+playerControls = (cursors, player) ->
+  if cursors.left.isDown
+    player.body.velocity.x = -150
+  else if cursors.right.isDown
+    player.body.velocity.x = 150
+  else
+    player.body.velocity.x = 0
+
+  if cursors.up.isDown and canJump(player)
+    player.body.velocity.y = -350
+
+  if !cursors.up.isDown and player.body.velocity.y < 0
+    player.body.velocity.y = 0
+
 click = do ->
   childWindow = null
   embedder = null
@@ -55,6 +87,12 @@ create = ->
 
   background = game.add.tileSprite(0, 0, 800, 600, 'background')
 
+  # Blank Tilemap
+  # TODO: Save/Load from storage
+  map = game.add.tilemap()
+  layer1 = map.create('level1', 40, 30, 32, 32)
+  layer1.resizeWorld()
+
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
   # Controls
@@ -67,6 +105,9 @@ create = ->
   player = game.add.sprite(16, 32, 'dude')
   game.physics.enable(player, Phaser.Physics.ARCADE)
   player.body.collideWorldBounds = true
+
+  # Camera follow player
+  game.camera.follow(player)
 
   customObjects = game.add.group()
 
@@ -106,16 +147,12 @@ create = ->
 update = ->
   debugText.text = game.time.fps
 
-  if (cursors.left.isDown)
-    player.body.velocity.x = -150
-
-  if (cursors.right.isDown)
-    player.body.velocity.x = 150
-
   # Physics, Collision!
   game.physics.arcade.collide(player, customObjects, collisionHandler, processHandler, this)
 
   game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
+
+  playerControls(cursors, player)
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
