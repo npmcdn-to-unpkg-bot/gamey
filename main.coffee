@@ -89,10 +89,13 @@ create = ->
 
   # Blank Tilemap
   # TODO: Save/Load from storage
-  map = @map = game.add.tilemap()
-  map.setCollision(0)
-  layer1 = @layer1 = map.create('layer1', 40, 30, 32, 32)
-  layer1.resizeWorld()
+  mapData =
+    width: 40
+    height: 30
+    tileWidth: 32
+    tileHeight: 32
+  map = addMapFromData game, mapData
+  game.mainLayer.resizeWorld()
   currentTileIndex = 0
 
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
@@ -124,7 +127,7 @@ create = ->
 
   # Game Input
   game.input.onDown.add ({worldX:x, worldY:y}) ->
-    map.putTile(currentTileIndex, layer1.getTileX(x), layer1.getTileY(y), layer1)
+    map.putTile(currentTileIndex, game.mainLayer.getTileX(x), game.mainLayer.getTileY(y), game.mainLayer)
     console.log "get down"
 
   # Hotkeys
@@ -158,8 +161,8 @@ update = ->
   game.physics.arcade.collide(player, customObjects, collisionHandler, processHandler, this)
 
   game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
-  
-  game.physics.arcade.collide(player, @layer1)
+
+  game.physics.arcade.collide(player, game.mainLayer)
 
   playerControls(cursors, player)
 
@@ -283,3 +286,12 @@ serializeTilemap = (map) ->
     layers: layers.map serializeLayer
 
   console.log data
+
+addMapFromData = (game, mapData) ->
+  {width, height, tileWidth, tileHeight} = mapData
+
+  map = game.add.tilemap()
+  map.setCollision(0)
+  game.mainLayer = map.create('layer1', width, height, tileWidth, tileHeight)
+
+  return map
