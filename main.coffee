@@ -88,12 +88,6 @@ create = ->
   background = game.add.tileSprite(0, 0, 800, 600, 'background')
 
   # Blank Tilemap
-  # TODO: Save/Load from storage
-  mapData =
-    width: 40
-    height: 30
-    tileWidth: 32
-    tileHeight: 32
   map = addMapFromData game, mapData
   game.mainLayer.resizeWorld()
   currentTileIndex = 0
@@ -165,6 +159,18 @@ update = ->
   game.physics.arcade.collide(player, game.mainLayer)
 
   playerControls(cursors, player)
+
+mapData = null
+db.objects.get "map"
+.then (d) ->
+  if d
+    mapData = d
+  else
+    mapData =
+      width: 40
+      height: 30
+      tileWidth: 32
+      tileHeight: 32
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
