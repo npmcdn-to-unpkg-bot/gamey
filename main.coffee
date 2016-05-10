@@ -90,7 +90,7 @@ create = ->
   # Blank Tilemap
   map = addMapFromData game, mapData
   game.mainLayer.resizeWorld()
-  currentTileIndex = 0
+  currentTileIndex = 1
 
   button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
@@ -101,7 +101,7 @@ create = ->
   game.physics.arcade.gravity.y = 500
 
   # Player
-  player = game.add.sprite(16, 32, 'dude')
+  player = game.add.sprite(0, 0, 'dude')
   game.physics.enable(player, Phaser.Physics.ARCADE)
   player.body.collideWorldBounds = true
 
@@ -166,11 +166,18 @@ db.objects.get "map"
   if d
     mapData = d
   else
+    tileData = new Uint8Array 1200
+
+    [40...60].forEach (i) ->
+      tileData[i] = 1
+
     mapData =
       width: 40
       height: 30
       tileWidth: 32
       tileHeight: 32
+      collision: [1]
+      tileData: tileData
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
@@ -294,10 +301,17 @@ serializeTilemap = (map) ->
   console.log data
 
 addMapFromData = (game, mapData) ->
-  {width, height, tileWidth, tileHeight} = mapData
+  {width, height, tileWidth, tileHeight, collision, tileData} = mapData
 
   map = game.add.tilemap()
-  map.setCollision(0)
-  game.mainLayer = map.create('layer1', width, height, tileWidth, tileHeight)
+  map.setCollision(collision)
+  game.mainLayer = layer = map.create('layer1', width, height, tileWidth, tileHeight)
+
+  tileData.forEach (tileIndex, i) ->
+    x = i % width
+    y = (i / width)|0
+    
+    if tileIndex
+      map.putTile(tileIndex, x, y, layer)
 
   return map
