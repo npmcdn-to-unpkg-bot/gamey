@@ -292,6 +292,7 @@ serializeTilemap = (map) ->
   {width, height, tileWidth, tileHeight, layers} = map
 
   data =
+    collision: [1] # TODO: Need to remember our collision settings on the map/layer so we can serialize them
     width: width
     height: height
     tileWidth: tileWidth
