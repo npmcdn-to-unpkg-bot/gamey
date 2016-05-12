@@ -177,7 +177,12 @@ db.objects.get "map"
       tileWidth: 32
       tileHeight: 32
       collision: [1]
-      tileData: tileData
+      layers: [
+        data: tileData
+        name: "layer1"
+        width: 40
+        height: 30
+      ]
 
 db.objects.get "spritesheet"
 .then (spritesheet) ->
@@ -281,12 +286,18 @@ writeGameObjects = ->
   db.objects.put data
 
 serializeLayer = (layer) ->
-  {data, name} = layer
+  {data, name, width, height} = layer
+
+  tileData = new Uint8Array layer.width * layer.height
+
+  data.map (row, y) ->
+    row.map (tile, x) ->
+      tileData[y * width + x] = tile.index
 
   name: name
-  data: data.map (row) ->
-    row.map (tile) ->
-      tile.index
+  data: tileData
+  width: width
+  height: height
 
 serializeTilemap = (map) ->
   {width, height, tileWidth, tileHeight, layers} = map
@@ -302,17 +313,21 @@ serializeTilemap = (map) ->
   console.log data
 
 addMapFromData = (game, mapData) ->
-  {width, height, tileWidth, tileHeight, collision, tileData} = mapData
+  {tileWidth, tileHeight, collision, layers} = mapData
 
   map = game.add.tilemap()
   map.setCollision(collision)
-  game.mainLayer = layer = map.create('layer1', width, height, tileWidth, tileHeight)
 
-  tileData.forEach (tileIndex, i) ->
-    x = i % width
-    y = (i / width)|0
-    
-    if tileIndex
-      map.putTile(tileIndex, x, y, layer)
+  layers.forEach (layer, layerIndex) ->
+    {data, name, width, height} = layer
+
+    game.mainLayer = layer = map.create(name, width, height, tileWidth, tileHeight)
+
+    data.forEach (tileIndex, i) ->
+      x = i % width
+      y = (i / width)|0
+      
+      if tileIndex
+        map.putTile(tileIndex, x, y, layerIndex)
 
   return map
