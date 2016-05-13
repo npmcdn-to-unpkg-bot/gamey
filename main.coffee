@@ -143,6 +143,9 @@ create = ->
   .onDown.add ->
     writeSpritesheet()
     writeGameObjects()
+    data = serializeTilemap(map)
+    data.id = "map"
+    db.objects.put data
 
   game.input.keyboard.addKey(Phaser.Keyboard.A)
   .onDown.add ->
@@ -312,6 +315,8 @@ serializeTilemap = (map) ->
 
   console.log data
 
+  return data
+
 addMapFromData = (game, mapData) ->
   {tileWidth, tileHeight, collision, layers} = mapData
 
@@ -326,8 +331,8 @@ addMapFromData = (game, mapData) ->
     data.forEach (tileIndex, i) ->
       x = i % width
       y = (i / width)|0
-      
-      if tileIndex
+
+      if tileIndex and tileIndex != 255
         map.putTile(tileIndex, x, y, layerIndex)
 
   return map
