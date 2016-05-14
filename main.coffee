@@ -25,7 +25,7 @@ canJump = (player) ->
   playerFoot.top = playerFoot.y + playerFoot.height
   playerFoot.height = 1
 
-  player.body.blocked.down or 
+  player.body.blocked.down or
   customObjects.children.map (sprite) ->
     sprite.getBounds()
   .reduce (collides, bounds) ->
