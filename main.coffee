@@ -160,6 +160,7 @@ update = ->
   game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
 
   game.physics.arcade.collide(player, game.mainLayer)
+  game.physics.arcade.collide(customObjects, game.mainLayer)
 
   playerControls(cursors, player)
 
@@ -242,6 +243,9 @@ addObject = (game, group, data) ->
   # Physics!
   game.physics.arcade.enable sprite
   sprite.body.collideWorldBounds = true
+
+  # TODO: Only set drag when on ground, less when in air
+  sprite.body.drag.x = 500
 
   # Make sprite clickable
   sprite.inputEnabled = true
