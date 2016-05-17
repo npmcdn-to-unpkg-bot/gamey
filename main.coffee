@@ -60,8 +60,6 @@ click = do ->
       embedder.loadFile blob
 
   return ->
-    console.log "click"
-
     embedder = Embedder "https://danielx.net/pixel-editor/",
       childLoaded: ->
         console.log "Editor Loaded"
