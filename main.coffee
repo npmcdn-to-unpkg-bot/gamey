@@ -118,9 +118,18 @@ create = ->
     fill: "#080"
 
   # Game Input
-  game.input.onDown.add ({worldX:x, worldY:y}) ->
-    map.putTile(currentTileIndex, game.mainLayer.getTileX(x), game.mainLayer.getTileY(y), game.mainLayer)
-    console.log "get down"
+  game.input.onDown.add ({worldX:x, worldY:y, button}) ->
+    tileX = game.mainLayer.getTileX(x)
+    tileY = game.mainLayer.getTileY(y)
+
+    if button is Phaser.Mouse.RIGHT_BUTTON
+      tile = map.getTile(tileX, tileY, game.mainLayer)
+      index = tile?.index or 255
+      console.log index
+      if index != 255
+        ;# TODO: Open an editor, editing a blob that will save to this index
+    else
+      map.putTile(currentTileIndex, tileX, tileY, game.mainLayer)
 
   # Hotkeys
   ["ZERO", "ONE", "TWO", "THREE"].forEach (key, i) ->
@@ -148,6 +157,10 @@ create = ->
   game.input.keyboard.addKey(Phaser.Keyboard.A)
   .onDown.add ->
     serializeTilemap(map)
+  
+  game.input.keyboard.addKey(Phaser.Keyboard.T)
+  .onDown.add ->
+    
 
 update = ->
   debugText.text = game.time.fps
