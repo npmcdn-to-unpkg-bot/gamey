@@ -3,9 +3,11 @@ module.exports = ->
   embedder = null
   activeFrame = 0
 
-  open: ->
+  open: (blobPromise) ->
     if childWindow?.open
       # Load data
+      blobPromise.then (blob) ->
+        
     else
       embedder = Embedder "https://danielx.net/pixel-editor/",
         childLoaded: ->

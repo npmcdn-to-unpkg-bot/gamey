@@ -223,7 +223,6 @@ db.objects.get "spritesheet"
   .then (img) ->
     spritesheet = Spritesheet spriteWidth, spriteHeight, width, height, img
 .then (spritesheet) ->
-  console.log spritesheet
   canvas = spritesheet.canvas()
 
   preload = ->
@@ -328,14 +327,14 @@ serializeTilemap = (map) ->
     tileHeight: tileHeight
     layers: layers.map serializeLayer
 
-  console.log data
-
   return data
 
 addMapFromData = (game, mapData) ->
   {tileWidth, tileHeight, collision, layers} = mapData
 
   map = game.add.tilemap()
+  # TODO: Separate spritesheet for the map
+  map.addTilesetImage("spritesheet")
   map.setCollision(collision)
 
   layers.forEach (layer, layerIndex) ->
