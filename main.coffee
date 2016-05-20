@@ -6,6 +6,8 @@ Spritesheet = require "./spritesheet"
 
 db = require("./db")()
 
+PixelEditor = require "./pixel_editor"
+
 Embedder = require "embedder"
 customObjects = null
 debugText = null
@@ -127,6 +129,19 @@ create = ->
       index = tile?.index or 255
       console.log index
       if index != 255
+        saveHandler = (img) ->
+          spritesheet.compose(img, index)
+
+          # Need to update cache?
+          game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
+
+          customObjects.children.map (obj) ->
+            obj.loadTexture("spritesheet", obj.frame)
+
+          reloadMap(game)
+
+          return
+        PixelEditor(saveHandler).open spritesheet.getBlob(index)
         ;# TODO: Open an editor, editing a blob that will save to this index
     else
       map.putTile(currentTileIndex, tileX, tileY, game.mainLayer)
@@ -157,17 +172,16 @@ create = ->
   game.input.keyboard.addKey(Phaser.Keyboard.A)
   .onDown.add ->
     serializeTilemap(map)
-  
-  game.input.keyboard.addKey(Phaser.Keyboard.T)
+
+  game.input.keyboard.addKey(Phaser.Keyboard.R)
   .onDown.add ->
-    
+    reloadMap(game)
 
 update = ->
   debugText.text = game.time.fps
 
   # Physics, Collision!
   game.physics.arcade.collide(player, customObjects, collisionHandler, processHandler, this)
-
   game.physics.arcade.collide(customObjects, customObjects, collisionHandler, processHandler, this)
 
   game.physics.arcade.collide(player, game.mainLayer)
@@ -329,11 +343,19 @@ serializeTilemap = (map) ->
 
   return data
 
+# Note: Tile sprites don't update until the game ticks into the next frame... hmm.
+reloadMap = (game) ->
+  map = game.map
+  data = serializeTilemap(map)
+
+  map.destroy()
+  addMapFromData game, data
+
 addMapFromData = (game, mapData) ->
   {tileWidth, tileHeight, collision, layers} = mapData
 
-  map = game.add.tilemap()
-  # TODO: Separate spritesheet for the map
+  map = game.map = game.add.tilemap()
+  # TODO: Separate spritesheet for the map?
   map.addTilesetImage("spritesheet")
   map.setCollision(collision)
 
