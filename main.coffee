@@ -142,7 +142,6 @@ create = ->
 
           return
         PixelEditor(saveHandler).open spritesheet.getBlob(index)
-        ;# TODO: Open an editor, editing a blob that will save to this index
     else
       map.putTile(currentTileIndex, tileX, tileY, game.mainLayer)
 
@@ -334,7 +333,7 @@ serializeTilemap = (map) ->
   {width, height, tileWidth, tileHeight, layers} = map
 
   data =
-    collision: [1] # TODO: Need to remember our collision settings on the map/layer so we can serialize them
+    collision: map.collideIndexes
     width: width
     height: height
     tileWidth: tileWidth
