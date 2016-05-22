@@ -85,14 +85,10 @@ click = do ->
 create = ->
   game.stage.backgroundColor = '#182d3b'
 
-  background = game.add.tileSprite(0, 0, 800, 600, 'background')
-
   # Blank Tilemap
   map = addMapFromData game, mapData
   game.mainLayer.resizeWorld()
   currentTileIndex = 1
-
-  button = game.add.button(game.world.centerX - 95, 400, 'button', click, this, 2, 1, 0)
 
   # Controls
   cursors = game.input.keyboard.createCursorKeys()
@@ -245,8 +241,6 @@ db.objects.get "spritesheet"
 
     # NOTE: You can pass a canvas as the data arg here, cool undocumented feature!
     game.cache.addSpriteSheet('spritesheet', "", spritesheet.canvas(), spritesheet.spriteWidth(), spritesheet.spriteHeight())
-    game.load.spritesheet('button', 'https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/n4lN8edpcmdsAoBzeZ9-xFW7JW2WaUofe_tlkqo--8s', 193, 71)
-    game.load.image('background', "https://s3.amazonaws.com/whimsyspace-databucket-1g3p6d9lcl6x1/danielx/data/f3I-1TlC9lsqkWBLXVsFaENRqTfLJGLYBPZf2k73OiA")
 
   global.game = game = new Phaser.Game 800, 600, Phaser.AUTO, document.body,
     create: create
