@@ -5,6 +5,8 @@ Live edit game object properties
 
 Save to S3 / external
 
+Local / S3 Caching File System
+
 Done
 ====
 
