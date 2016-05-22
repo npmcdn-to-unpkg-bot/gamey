@@ -14,7 +14,7 @@
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nLive edit game object properties\n\nSave to S3 / external\n\nDone\n====\n\nLoad and update a game object's image in pixel editor\n\nSave and restore game state\n\nLive edit tilemap\n\nDraw an image in pixel editor and make it into a sprite\n\nSave / Restore IndexedDB\n",
+      "content": "TODO\n====\n\nLive edit game object properties\n\nSave to S3 / external\n\nLocal / S3 Caching File System\n\nDone\n====\n\nLoad and update a game object's image in pixel editor\n\nSave and restore game state\n\nLive edit tilemap\n\nDraw an image in pixel editor and make it into a sprite\n\nSave / Restore IndexedDB\n",
       "mode": "100644",
       "type": "blob"
     },
