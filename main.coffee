@@ -97,7 +97,8 @@ create = ->
   game.physics.arcade.gravity.y = 500
 
   # Player
-  player = game.add.sprite(0, 0, 'dude')
+  player = game.add.sprite(0, 0, 'spritesheet')
+  # TODO: Add player animations
   game.physics.enable(player, Phaser.Physics.ARCADE)
   player.body.collideWorldBounds = true
 
